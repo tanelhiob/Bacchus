@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.28721.148
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "Bacchus.Business", "Bacchus.Business\Bacchus.Business.fsproj", "{74BA2399-42EF-4399-B4CD-CCF1B14E1E38}"
+EndProject
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "Bacchus.Web", "Bacchus.Web\Bacchus.Web.fsproj", "{6586687F-A1A9-4609-A2E4-CA51A8086D6C}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{74BA2399-42EF-4399-B4CD-CCF1B14E1E38}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{74BA2399-42EF-4399-B4CD-CCF1B14E1E38}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{74BA2399-42EF-4399-B4CD-CCF1B14E1E38}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{74BA2399-42EF-4399-B4CD-CCF1B14E1E38}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6586687F-A1A9-4609-A2E4-CA51A8086D6C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6586687F-A1A9-4609-A2E4-CA51A8086D6C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6586687F-A1A9-4609-A2E4-CA51A8086D6C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6586687F-A1A9-4609-A2E4-CA51A8086D6C}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {868A0169-0E61-478A-879D-44A6CCCF03A2}
+	EndGlobalSection
+EndGlobal
