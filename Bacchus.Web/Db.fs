@@ -12,7 +12,7 @@ type Bid = {
 let private bids = new ConcurrentBag<Bid>()
 
 let createBidAsync bid = async {
-    do! Async.Sleep 250 // hurr durr I'm a "special" database
+    do! Async.Sleep 250 // Hurr durr I'm a "special" database
     bids.Add bid
 }
   

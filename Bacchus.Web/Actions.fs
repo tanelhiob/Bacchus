@@ -9,47 +9,42 @@ open Suave.RequestErrors
 
 open Utils
 
-let listAuctionsGet (ctx: HttpContext) = async {    
+let listAuctionsGet ctx = async {    
 
-    let search : Forms.Search = Forms.loadSearch ctx.request.query
-
-    let! auctions = Auction.listAuctionsAsync ()
-
-    let categories =
-        auctions
-        |> List.map (fun auction -> auction.ProductCategory)
-        |> List.distinct
-
-    let filterByName (textOption: string option) (auction: Auction.Auction) =
+    let filterByName textOption (auction: Auction.Auction) =
         match textOption with
-        | HasTextValue text -> auction.ProductName.ToLower().Contains(text.ToLower())
-        | DoesntHaveTextValue -> true
+        | Some text when textHasContent text -> auction.ProductName.ToLower() = text.ToLower()
+        | _ -> true
 
-    let filterByCategory (categoryOption: string option) (auction: Auction.Auction) =
+    let filterByCategory categoryOption (auction: Auction.Auction) =
         match categoryOption with
-        | HasTextValue category -> auction.ProductCategory = category
-        | DoesntHaveTextValue -> true
-         
-    let filteredAuctions =
-        auctions
-        |> List.filter (filterByName search.Name)
-        |> List.filter (filterByCategory search.Category)
+        | Some category when textHasContent category -> auction.ProductCategory = category
+        | _ -> true
+    
+    let! auctions = Auction.listAuctionsAsync ()
+    
+    let search = Forms.loadSearch ctx.request.query
+
+    let uniqueCategories = auctions
+                           |> List.map (fun auction -> auction.ProductCategory)
+                           |> List.distinct
+
+    let filteredAuctions = auctions
+                           |> List.filter (filterByName search.Name)
+                           |> List.filter (filterByCategory search.Category)
        
-    let html = Views.auctionsView search categories filteredAuctions
+    let html = Views.auctionsView search uniqueCategories filteredAuctions
 
     return! OK html ctx
 }
 
-let private getAuctionAsync (id: string) = async {  
-    match Guid.TryParse(id) with
-    | (true, guid) -> 
-        let! auctions = Auction.listAuctionsAsync () 
-        return auctions |> List.tryFind (fun auction -> auction.ProductId = guid)
-    | (false, _) ->
-        return None
+let private getAuctionAsync id = async {
+    match id with
+    | ValidGuid guid -> return! Auction.getAuctionAsync guid        
+    | InvalidGuid -> return None
 }
 
-let bidGet (id: string) (ctx: HttpContext) = async {
+let bidGet (id: string) ctx = async {
 
     let! auctionOption = getAuctionAsync id
 
