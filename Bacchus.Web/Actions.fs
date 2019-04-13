@@ -1,7 +1,6 @@
 ﻿module Actions
 
 open System
-open System.Globalization
 open Suave
 open Bacchus.Business
 open Suave.Successful
@@ -43,57 +42,42 @@ let private getAuctionAsync id = async {
     | ValidGuid guid -> return! Auction.getAuctionAsync guid        
     | InvalidGuid -> return None
 }
-
-let bidGet (id: string) ctx = async {
-
-    let! auctionOption = getAuctionAsync id
-
-    return!
-        match auctionOption with
-        | Some auction ->
-            let html = Views.bidView auction
-            OK html ctx
-        | None ->
-            NOT_FOUND (sprintf "Active auction %s not found" id) ctx
+    
+let bidGet id ctx = asyncOption {
+    let! auction = getAuctionAsync id
+    let html = Views.bidView auction
+    return! OK html ctx
 }
 
 let private getAmountOption dict =
-    let amountTextOption = dict ^^ "amount" |> Option.ofChoice
-    match amountTextOption with
-    | Some amountText ->
-        match Decimal.TryParse (amountText, NumberStyles.Any, CultureInfo.InvariantCulture) with
-        | (true, amount) -> Some amount
-        | (false, _) -> None
-    | None -> None
+    dict ^^ "amount"
+    |> Option.ofChoice
+    |> Option.bind (function | ValidDecimal decimal -> Some decimal | _ -> None)
 
-let bidPost (id: string) (ctx: HttpContext) = async {
-
-    let! auctionOption = getAuctionAsync id
-
-    return! 
-        match auctionOption with
-        | Some auction ->
-            let amountOption = getAmountOption ctx.request.form
-            match amountOption with
-            | Some amount -> 
-                let bid : Db.Bid = {
-                    ProductId = auction.ProductId
-                    Amount = amount
-                    Created = DateTimeOffset.UtcNow                    
-                }               
-                async {
-                    do! Db.createBidAsync bid
-                    let html = Views.bidView auction
-                    return! OK html ctx
-                }
-            | None ->
-                BAD_REQUEST "Bid amount not sent" ctx
-        | None ->
-            NOT_FOUND (sprintf "Active auction %s not found" id) ctx
-
+let createBidAsync (auction: Auction.Auction) amount = async {
+    let bid: Db.Bid = {
+        ProductId = auction.ProductId
+        Amount = amount
+        Created = DateTimeOffset.UtcNow
+    }
+    do! Db.createBidAsync bid
 }
 
-let listBidsGet (ctx: HttpContext) = async {
+let bidPost id ctx = async {
+    let! auctionOption = getAuctionAsync id 
+    match auctionOption with
+    | Some auction ->
+        let amountOption = getAmountOption ctx.request.form
+        match amountOption with
+        | Some amount ->
+            do! createBidAsync auction amount
+            let html = Views.bidView auction
+            return! OK html ctx
+        | None -> return! BAD_REQUEST "" ctx
+    | None -> return! NOT_FOUND "" ctx
+}
+
+let listBidsGet ctx = async {
     let! bids = Db.getBidsAsync ()
     let html = Views.bidsView bids
     return! OK html ctx
