@@ -2,6 +2,7 @@
 
 open System
 open System.Globalization
+open Suave.Html
 
 let textHasContent (text: string) =
     String.IsNullOrWhiteSpace text |> not
@@ -15,4 +16,3 @@ let (|ValidDecimal|InvalidDecimal|) (input: string) =
     match Decimal.TryParse (input, NumberStyles.Any, CultureInfo.InvariantCulture) with
     | (true, amount) -> ValidDecimal amount
     | (false, _) -> InvalidDecimal
-

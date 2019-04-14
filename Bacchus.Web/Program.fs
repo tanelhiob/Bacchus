@@ -6,10 +6,10 @@ open Suave.Operators
 let main _ =
 
     let app = choose [
-        GET >=> path "/" >=> Actions.listAuctionsGet
-        GET >=> pathScan "/bid/%s" Actions.bidGet
-        POST >=> pathScan "/bid/%s" Actions.bidPost
-        GET >=> path "/bids" >=> Actions.listBidsGet
+        GET >=> path "/" >=> Auctions.index
+        GET >=> pathScan "/bid/%s" Bid.bidGet
+        POST >=> pathScan "/bid/%s" Bid.bidPost
+        GET >=> path "/bids" >=> Bids.index
         RequestErrors.NOT_FOUND "path not found" ]
     
     startWebServer defaultConfig app

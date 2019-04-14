@@ -6,11 +6,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="MasterView.fs" />
     <Compile Include="Utils.fs" />
     <Compile Include="Db.fs" />
-    <Compile Include="Forms.fs" />
-    <Compile Include="Views.fs" />
-    <Compile Include="Actions.fs" />
+    <Compile Include="Actions\Bid.fs" />
+    <Compile Include="Actions\Bids.fs" />
+    <Compile Include="Actions\Auctions.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
 

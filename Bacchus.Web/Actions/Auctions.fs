@@ -1,18 +1,17 @@
-﻿module Views
+﻿module Auctions
 
-open System
+open Suave
 open Suave.Html
-open Bacchus.Business.Auction
+open Suave.Successful
+open Bacchus.Business
+open Utils
 
-let private masterView name content = 
-    html [] [
-        head [] [
-            title [] name
-        ]
-        body [] content
-    ]
+type Search = {
+    Name: string option
+    Category: string option
+}
 
-let private renderAuctionTableRow (auction: Auction) =
+let private renderAuctionTableRow (auction: Auction.Auction) =
     tag "tr" [] [
         tag "td" [] [ Text (auction.ProductId.ToString()) ]
         tag "td" [] [ Text auction.ProductName ]
@@ -24,7 +23,7 @@ let private renderAuctionTableRow (auction: Auction) =
         ]
     ]
 
-let private renderSearch (search: Forms.Search) (categories: string list) =
+let private renderSearch (search: Search) (categories: string list) =
  
     let renderOption activeOption option =
         if (activeOption |> Option.bind ((=) option >> Some) |> Option.defaultValue false) then
@@ -50,7 +49,7 @@ let private renderSearch (search: Forms.Search) (categories: string list) =
         tag "button" ["type", "reset"; "value", "reset"] [ Text "reset"]
     ]
 
-let auctionsView search categories (auctions: Auction list) =
+let view search categories (auctions: Auction.Auction list) =
     [
         tag "h1" [] [
             Text "Auctions"
@@ -71,45 +70,38 @@ let auctionsView search categories (auctions: Auction list) =
             ]
             tag "tbody" [] (auctions |> List.map renderAuctionTableRow)
         ]
-    ] |> masterView "auctions" |> htmlToString
+    ] |> MasterView.view "auctions" |> htmlToString
      
-let bidView (auction: Auction) =
-    let endText = auction.BiddingEndDate.ToString()
-    let timeUntilEnd = (auction.BiddingEndDate - DateTimeOffset.Now).ToString()
+let loadSearch dict =
+    let name = dict ^^ "name" |> Option.ofChoice
+    let category = dict ^^ "category" |> Option.ofChoice
+    { Name = name; Category = category }
 
-    [
-        tag "h1" [] [ Text auction.ProductName ]
-        div [] [ Text auction.ProductDescription ]
-        div [] [ Text auction.ProductCategory ]
-        div [] [ Text (sprintf "%s -> %s" endText timeUntilEnd) ] 
+let index ctx = async {    
 
-        tag "form" ["method", "POST"] [
-            tag "input" ["type", "number"; "step", "0.01"; "name", "amount"] []
-            tag "button" ["type", "submit"] [ Text "Bid" ]
-        ]
+    let filterByName textOption (auction: Auction.Auction) =
+        match textOption with
+        | Some text when textHasContent text -> auction.ProductName.ToLower() = text.ToLower()
+        | _ -> true
 
-        p [] [
-            tag "a" ["href", "/"] [ Text "back to index"]
-        ]
-    ] |> masterView (sprintf "auction %A" auction.ProductId) |> htmlToString
+    let filterByCategory categoryOption (auction: Auction.Auction) =
+        match categoryOption with
+        | Some category when textHasContent category -> auction.ProductCategory = category
+        | _ -> true
+    
+    let! auctions = Auction.listAuctionsAsync ()
+    
+    let search = loadSearch ctx.request.query
 
-let private renderBidsTableRow (bid: Db.Bid) =
-    tag "tr" [] [
-        tag "td" [] [ Text (bid.ProductId.ToString()) ]
-        tag "td" [] [ Text (bid.Amount.ToString()) ]
-        tag "td" [] [ Text (bid.Created.ToString("yyyy-MM-dd hh:mm:ss")) ]
-    ]
+    let uniqueCategories = auctions
+                           |> List.map (fun auction -> auction.ProductCategory)
+                           |> List.distinct
 
-let bidsView (bids: Db.Bid list) =
-    [
-        tag "table" [] [
-            tag "thead" [] [
-                tag "tr" [] [
-                    tag "th" [] [ Text "ProductId" ]
-                    tag "th" [] [ Text "Amount" ]
-                    tag "th" [] [ Text "Created" ]
-                ]
-            ]
-            tag "tbody" [] (List.map renderBidsTableRow bids)
-        ]
-    ] |> masterView "bids" |> htmlToString
+    let filteredAuctions = auctions
+                           |> List.filter (filterByName search.Name)
+                           |> List.filter (filterByCategory search.Category)
+       
+    let html = view search uniqueCategories filteredAuctions
+
+    return! OK html ctx
+}
