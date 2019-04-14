@@ -7,9 +7,7 @@ let main _ =
 
     let app = choose [
         GET >=> path "/" >=> Actions.listAuctionsGet
-        GET >=> choose [
-            pathScan "/bid/%s" Actions.bidGet
-            RequestErrors.NOT_FOUND "auction not found" ]
+        GET >=> pathScan "/bid/%s" Actions.bidGet
         POST >=> pathScan "/bid/%s" Actions.bidPost
         GET >=> path "/bids" >=> Actions.listBidsGet
         RequestErrors.NOT_FOUND "path not found" ]

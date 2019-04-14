@@ -43,10 +43,14 @@ let private getAuctionAsync id = async {
     | InvalidGuid -> return None
 }
     
-let bidGet id ctx = asyncOption {
-    let! auction = getAuctionAsync id
-    let html = Views.bidView auction
-    return! OK html ctx
+let bidGet id ctx = async {
+    let! auctionOption = getAuctionAsync id
+    match auctionOption with
+    | Some auction -> 
+        let html = Views.bidView auction
+        return! OK html ctx
+    | None ->
+        return! NOT_FOUND "auction not found" ctx
 }
 
 let private getAmountOption dict =
