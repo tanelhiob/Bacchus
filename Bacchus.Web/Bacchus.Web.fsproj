@@ -6,8 +6,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="MasterView.fs" />
     <Compile Include="Utils.fs" />
+    <Compile Include="MasterView.fs" />
     <Compile Include="Db.fs" />
     <Compile Include="Actions\Bid.fs" />
     <Compile Include="Actions\Bids.fs" />

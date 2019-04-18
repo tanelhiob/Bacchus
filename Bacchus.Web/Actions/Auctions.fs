@@ -2,7 +2,6 @@
 
 open Suave
 open Suave.Html
-open Suave.Successful
 open Bacchus.Business
 open Utils
 
@@ -49,7 +48,7 @@ let private renderSearch (search: Search) (categories: string list) =
         tag "button" ["type", "reset"; "value", "reset"] [ Text "reset"]
     ]
 
-let view search categories (auctions: Auction.Auction list) =
+let view (search, categories, (auctions: Auction.Auction list)) =
     [
         tag "h1" [] [
             Text "Auctions"
@@ -81,7 +80,7 @@ let index ctx = async {
 
     let filterByName textOption (auction: Auction.Auction) =
         match textOption with
-        | Some text when textHasContent text -> auction.ProductName.ToLower() = text.ToLower()
+        | Some text when textHasContent text -> auction.ProductName.ToLower().Contains(text.ToLower())
         | _ -> true
 
     let filterByCategory categoryOption (auction: Auction.Auction) =
@@ -101,7 +100,7 @@ let index ctx = async {
                            |> List.filter (filterByName search.Name)
                            |> List.filter (filterByCategory search.Category)
        
-    let html = view search uniqueCategories filteredAuctions
-
-    return! OK html ctx
+    return Ok (search, uniqueCategories, filteredAuctions)
 }
+
+let renderIndex = render index view

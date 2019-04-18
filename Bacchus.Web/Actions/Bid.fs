@@ -3,7 +3,6 @@
 open System
 open Suave
 open Suave.Html
-open Suave.Successful
 open Suave.RequestErrors
 open Bacchus.Business
 open Utils
@@ -34,14 +33,11 @@ let private getAuctionAsync id = async {
     | InvalidGuid -> return None
 }
     
-let bidGet id ctx = async {
+let bidGet id _ = async {
     let! auctionOption = getAuctionAsync id
     match auctionOption with
-    | Some auction -> 
-        let html = view auction
-        return! OK html ctx
-    | None ->
-        return! NOT_FOUND "auction not found" ctx
+    | Some auction -> return Ok auction
+    | None -> return Error (NOT_FOUND "auction not found")
 }
 
 let private getAmountOption dict =
@@ -66,8 +62,10 @@ let bidPost id ctx = async {
         match amountOption with
         | Some amount ->
             do! createBidAsync auction amount
-            let html = view auction
-            return! OK html ctx
-        | None -> return! BAD_REQUEST "" ctx
-    | None -> return! NOT_FOUND "" ctx
+            return Ok auction
+        | None -> return Error (BAD_REQUEST "invalid amount")
+    | None -> return Error (NOT_FOUND "active auction not found")
 }
+
+let renderBidGet id = render (bidGet id) view
+let renderBidPost id = render (bidPost id) view
