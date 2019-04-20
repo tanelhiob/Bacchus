@@ -2,7 +2,9 @@
 
 open System
 open System.Globalization
+open Suave
 open Suave.Successful
+open Suave.RequestErrors
 
 let textHasContent (text: string) =
     String.IsNullOrWhiteSpace text |> not
@@ -19,6 +21,6 @@ let (|ValidDecimal|InvalidDecimal|) (input: string) =
 
 let render action view ctx = async {
     match! action ctx with
-    | Ok result -> return! OK (view result) ctx
-    | Error error -> return! error ctx
+    | Some result -> return! OK (view result) ctx
+    | None -> return! BAD_REQUEST "the train crashed" ctx
 }

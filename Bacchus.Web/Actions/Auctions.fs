@@ -71,7 +71,7 @@ let view (search, categories, (auctions: Auction.Auction list)) =
         ]
     ] |> MasterView.view "auctions" |> htmlToString
      
-let loadSearch dict =
+let private loadSearch dict =
     let name = dict ^^ "name" |> Option.ofChoice
     let category = dict ^^ "category" |> Option.ofChoice
     { Name = name; Category = category }
@@ -100,7 +100,5 @@ let index ctx = async {
                            |> List.filter (filterByName search.Name)
                            |> List.filter (filterByCategory search.Category)
        
-    return Ok (search, uniqueCategories, filteredAuctions)
+    return Some (search, uniqueCategories, filteredAuctions)
 }
-
-let renderIndex = render index view

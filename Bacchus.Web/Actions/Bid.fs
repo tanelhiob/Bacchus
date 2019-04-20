@@ -3,13 +3,16 @@
 open System
 open Suave
 open Suave.Html
-open Suave.RequestErrors
 open Bacchus.Business
 open Utils
 
-let view (auction: Auction.Auction) =
+let view (auction: Auction.Auction, isPostBack) =
     let endText = auction.BiddingEndDate.ToString()
     let timeUntilEnd = (auction.BiddingEndDate - DateTimeOffset.Now).ToString()
+
+    let successMessage =
+        if isPostBack then div [] [ Text "bid placed!" ]
+        else Text ""
 
     [
         tag "h1" [] [ Text auction.ProductName ]
@@ -22,30 +25,30 @@ let view (auction: Auction.Auction) =
             tag "button" ["type", "submit"] [ Text "Bid" ]
         ]
 
+        successMessage
+
         p [] [
             tag "a" ["href", "/"] [ Text "back to index"]
         ]
     ] |> MasterView.view (sprintf "auction %A" auction.ProductId) |> htmlToString
 
-let private getAuctionAsync id = async {
+let private getAuctionAsyncOption id = async {
     match id with
-    | ValidGuid guid -> return! Auction.getAuctionAsync guid        
+    | ValidGuid guid -> return! Auction.getAuctionAsync guid
     | InvalidGuid -> return None
 }
     
-let bidGet id _ = async {
-    let! auctionOption = getAuctionAsync id
-    match auctionOption with
-    | Some auction -> return Ok auction
-    | None -> return Error (NOT_FOUND "auction not found")
+let bidGet id _ = asyncOption { 
+    let! auction = getAuctionAsyncOption id
+    return (auction, false)
 }
 
 let private getAmountOption dict =
     dict ^^ "amount"
     |> Option.ofChoice
-    |> Option.bind (function | ValidDecimal decimal -> Some decimal | _ -> None)
+    |> Option.bind (function | ValidDecimal decimal -> Some decimal | InvalidDecimal -> None)
 
-let createBidAsync (auction: Auction.Auction) amount = async {
+let private createBidAsync (auction: Auction.Auction) amount = async {
     let bid: Db.Bid = {
         ProductId = auction.ProductId
         Amount = amount
@@ -54,18 +57,12 @@ let createBidAsync (auction: Auction.Auction) amount = async {
     do! Db.createBidAsync bid
 }
 
-let bidPost id ctx = async {
-    let! auctionOption = getAuctionAsync id 
-    match auctionOption with
-    | Some auction ->
-        let amountOption = getAmountOption ctx.request.form
-        match amountOption with
-        | Some amount ->
-            do! createBidAsync auction amount
-            return Ok auction
-        | None -> return Error (BAD_REQUEST "invalid amount")
-    | None -> return Error (NOT_FOUND "active auction not found")
-}
+let bidPost id ctx = asyncOption {
+    let! amount  = Async.result (getAmountOption ctx.request.form)
+    let! auction = getAuctionAsyncOption id
 
-let renderBidGet id = render (bidGet id) view
-let renderBidPost id = render (bidPost id) view
+    return! async {
+        do! createBidAsync auction amount
+        return Some (auction, true)
+    }
+}

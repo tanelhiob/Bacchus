@@ -7,5 +7,10 @@ let view name content =
         head [] [
             title [] name
         ]
-        body [] content
+        body [] [
+            tag "header" [] [
+                a "/bids" [] [ Text "check existing bids" ]
+            ]        
+            tag "article" [] content
+        ]
     ]

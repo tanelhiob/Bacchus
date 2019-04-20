@@ -26,7 +26,5 @@ let view (bids: Db.Bid list) =
 
 let index _ = async {
     let! bids = Db.getBidsAsync ()
-    return Ok bids
+    return Some bids
 }
-
-let renderIndex = render index view
