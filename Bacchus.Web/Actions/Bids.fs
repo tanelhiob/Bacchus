@@ -1,7 +1,6 @@
 ﻿module Bids
 
 open Suave.Html
-open Utils
 
 let private renderBidsTableRow (bid: Db.Bid) =
     tag "tr" [] [
@@ -10,7 +9,7 @@ let private renderBidsTableRow (bid: Db.Bid) =
         tag "td" [] [ Text (bid.Created.ToString("yyyy-MM-dd hh:mm:ss")) ]
     ]
 
-let view (bids: Db.Bid list) =
+let view bids =
     [
         tag "table" [] [
             tag "thead" [] [

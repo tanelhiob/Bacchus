@@ -2,7 +2,6 @@
 
 open Suave
 open Suave.Html
-open Bacchus.Business
 open Utils
 
 type Search = {
@@ -10,7 +9,7 @@ type Search = {
     Category: string option
 }
 
-let private renderAuctionTableRow (auction: Auction.Auction) =
+let private renderAuctionTableRow (auction: AuctionsService.Provider.Auction) =
     tag "tr" [] [
         tag "td" [] [ Text (auction.ProductId.ToString()) ]
         tag "td" [] [ Text auction.ProductName ]
@@ -21,7 +20,7 @@ let private renderAuctionTableRow (auction: Auction.Auction) =
             tag "a" ["href", sprintf "/bid/%A" auction.ProductId] [ Text "bid" ]
         ]
     ]
-
+     
 let private renderSearch (search: Search) (categories: string list) =
  
     let renderOption activeOption option =
@@ -48,7 +47,7 @@ let private renderSearch (search: Search) (categories: string list) =
         tag "button" ["type", "reset"; "value", "reset"] [ Text "reset"]
     ]
 
-let view (search, categories, (auctions: Auction.Auction list)) =
+let view (search, categories, auctions) =
     [
         tag "h1" [] [
             Text "Auctions"
@@ -78,17 +77,17 @@ let private loadSearch dict =
 
 let index ctx = async {    
 
-    let filterByName textOption (auction: Auction.Auction) =
+    let filterByName textOption (auction: AuctionsService.Provider.Auction) =
         match textOption with
         | Some text when textHasContent text -> auction.ProductName.ToLower().Contains(text.ToLower())
         | _ -> true
 
-    let filterByCategory categoryOption (auction: Auction.Auction) =
+    let filterByCategory categoryOption (auction: AuctionsService.Provider.Auction) =
         match categoryOption with
         | Some category when textHasContent category -> auction.ProductCategory = category
         | _ -> true
     
-    let! auctions = Auction.listAuctionsAsync ()
+    let! auctions = AuctionsService.listAuctionsAsync ()
     
     let search = loadSearch ctx.request.query
 

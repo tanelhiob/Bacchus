@@ -3,10 +3,9 @@
 open System
 open Suave
 open Suave.Html
-open Bacchus.Business
 open Utils
 
-let view (auction: Auction.Auction, isPostBack) =
+let view (auction: AuctionsService.Provider.Auction, isPostBack) =
     let endText = auction.BiddingEndDate.ToString()
     let timeUntilEnd = (auction.BiddingEndDate - DateTimeOffset.Now).ToString()
 
@@ -34,7 +33,7 @@ let view (auction: Auction.Auction, isPostBack) =
 
 let private getAuctionAsyncOption id = async {
     match id with
-    | ValidGuid guid -> return! Auction.getAuctionAsync guid
+    | ValidGuid guid -> return! AuctionsService.getAuctionAsync guid
     | InvalidGuid -> return None
 }
     
@@ -48,13 +47,12 @@ let private getAmountOption dict =
     |> Option.ofChoice
     |> Option.bind (function | ValidDecimal decimal -> Some decimal | InvalidDecimal -> None)
 
-let private createBidAsync (auction: Auction.Auction) amount = async {
-    let bid: Db.Bid = {
+let private createBidAsync (auction: AuctionsService.Provider.Auction) amount = async {
+    do! Db.createBidAsync {
         ProductId = auction.ProductId
         Amount = amount
         Created = DateTimeOffset.UtcNow
     }
-    do! Db.createBidAsync bid
 }
 
 let bidPost id ctx = asyncOption {

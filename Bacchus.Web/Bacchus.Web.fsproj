@@ -6,9 +6,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="AuctionsService.fs" />
+    <Compile Include="Db.fs" />
     <Compile Include="Utils.fs" />
     <Compile Include="MasterView.fs" />
-    <Compile Include="Db.fs" />
     <Compile Include="Actions\Bid.fs" />
     <Compile Include="Actions\Bids.fs" />
     <Compile Include="Actions\Auctions.fs" />
@@ -16,13 +17,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="FSharpx.Async" Version="1.13.2" />
+    <PackageReference Include="FSharp.Data" Version="3.1.1" />
     <PackageReference Include="Suave" Version="2.5.4" />
     <PackageReference Include="Suave.Experimental" Version="2.5.4" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\Bacchus.Business\Bacchus.Business.fsproj" />
   </ItemGroup>
 
   <ItemGroup>
