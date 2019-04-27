@@ -5,6 +5,7 @@ open System.Globalization
 open Suave
 open Suave.Successful
 open Suave.RequestErrors
+open System.IO
 
 let textHasContent (text: string) =
     String.IsNullOrWhiteSpace text |> not

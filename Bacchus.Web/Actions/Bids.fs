@@ -1,27 +1,31 @@
 ﻿module Bids
 
 open Suave.Html
+open MasterView
+open System
 
 let private renderBidsTableRow (bid: Db.Bid) =
-    tag "tr" [] [
-        tag "td" [] [ Text (bid.ProductId.ToString()) ]
-        tag "td" [] [ Text (bid.Amount.ToString()) ]
-        tag "td" [] [ Text (bid.Created.ToString("yyyy-MM-dd hh:mm:ss")) ]
+    let remainingTime = DateTimeOffset.UtcNow - bid.Created
+    tr [] [
+        td [] [Text (sprintf "%A" bid.ProductId)]
+        td [] [Text (sprintf "%.2f" bid.Amount)]
+        td [] [Text (remainingTime.ToString(""))]
     ]
 
 let view bids =
     [
-        tag "table" [] [
-            tag "thead" [] [
-                tag "tr" [] [
-                    tag "th" [] [ Text "ProductId" ]
-                    tag "th" [] [ Text "Amount" ]
-                    tag "th" [] [ Text "Created" ]
+        h3 [] [Text "Bids"]
+        table ["class","table"] [
+            thead [] [
+                tr [] [
+                    th [] [Text "ProductId"]
+                    th [] [Text "Amount"]
+                    th [] [Text "Created"]
                 ]
             ]
-            tag "tbody" [] (List.map renderBidsTableRow bids)
+            tbody [] (List.map renderBidsTableRow bids)
         ]
-    ] |> MasterView.masterView "bids" |> htmlToString
+    ] |> masterView "Bids" |> htmlToString
 
 let index _ = async {
     let! bids = Db.getBidsAsync ()

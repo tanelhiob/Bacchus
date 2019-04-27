@@ -19,7 +19,22 @@ let private renderAuctionTableRow (auction: AuctionsService.Provider.Auction) =
         td [] [Text (auction.BiddingEndDate.ToLocalTime() |> string)]
         td [] [a (sprintf "/bid/%A" auction.ProductId) [] [Text "bid"]]
     ]
-     
+   
+let private rendedAuctionsTable (auctions: AuctionsService.Provider.Auction list) =
+    table ["class","table"] [
+        thead [] [
+            tr [] [
+                th [] [Text "Id"]
+                th [] [Text "Name"]
+                th [] [Text "Category"]
+                th [] [Text "Description"]
+                th [] [Text "End time"]
+                th [] []
+            ]
+        ]
+        tbody [] (auctions |> List.map renderAuctionTableRow)
+    ]
+
 let private renderSearch (search: Search) (categories: string list) =
  
     let renderOption activeOption value =
@@ -57,19 +72,7 @@ let view (search, categories, auctions) =
             h3 ["class","mr-auto"] [Text "Auctions"]
             renderSearch search categories                
         ]
-        table ["class","table"] [
-            thead [] [
-                tr [] [
-                    th [] [Text "Id"]
-                    th [] [Text "Name"]
-                    th [] [Text "Category"]
-                    th [] [Text "Description"]
-                    th [] [Text "End time"]
-                    th [] []
-                ]
-            ]
-            tbody [] (auctions |> List.map renderAuctionTableRow)
-        ]
+        rendedAuctionsTable auctions      
     ] |> masterView "Auctions" |> htmlToString
      
 let private loadSearch dict =
@@ -93,13 +96,15 @@ let index ctx = async {
     
     let search = loadSearch ctx.request.query
 
-    let uniqueCategories = auctions
-                           |> List.map (fun auction -> auction.ProductCategory)
-                           |> List.distinct
+    let uniqueCategories =
+        auctions
+        |> List.map (fun auction -> auction.ProductCategory)
+        |> List.distinct
 
-    let filteredAuctions = auctions
-                           |> List.filter (filterByName search.Name)
-                           |> List.filter (filterByCategory search.Category)
+    let filteredAuctions =
+        auctions
+        |> List.filter (filterByName search.Name)
+        |> List.filter (filterByCategory search.Category)
        
     return Some (search, uniqueCategories, filteredAuctions)
 }
