@@ -3,6 +3,7 @@
 open Suave
 open Suave.Html
 open Utils
+open MasterView
 
 type Search = {
     Name: string option
@@ -10,65 +11,66 @@ type Search = {
 }
 
 let private renderAuctionTableRow (auction: AuctionsService.Provider.Auction) =
-    tag "tr" [] [
-        tag "td" [] [ Text (auction.ProductId.ToString()) ]
-        tag "td" [] [ Text auction.ProductName ]
-        tag "td" [] [ Text auction.ProductCategory ]
-        tag "td" [] [ Text auction.ProductDescription ]
-        tag "td" [] [ Text (auction.BiddingEndDate.ToLocalTime().ToString()) ]
-        tag "td" [] [ 
-            tag "a" ["href", sprintf "/bid/%A" auction.ProductId] [ Text "bid" ]
-        ]
+    tr [] [
+        td [] [Text (auction.ProductId |> string)]
+        td [] [Text auction.ProductName]
+        td [] [Text auction.ProductCategory]
+        td [] [Text auction.ProductDescription]
+        td [] [Text (auction.BiddingEndDate.ToLocalTime() |> string)]
+        td [] [a (sprintf "/bid/%A" auction.ProductId) [] [Text "bid"]]
     ]
      
 let private renderSearch (search: Search) (categories: string list) =
  
-    let renderOption activeOption option =
-        if (activeOption |> Option.bind ((=) option >> Some) |> Option.defaultValue false) then
-            tag "option" ["value", option; "selected", null] [ Text option ]
-        else
-            tag "option" ["value", option] [ Text option ]
-        
+    let renderOption activeOption value =
+        let isActive = activeOption |> Option.bind (fun active -> active = value |> Some) |> Option.defaultValue false        
+        let optionBuilder =  if isActive then selectedOption else option
+        optionBuilder value [] [Text value]
+
     let renderEmptyOption activeOption =
-        if Option.isSome activeOption then
-            tag "option" ["value", null] [ Text "-- select category --"]
-        else
-            tag "option" ["selected", null; "value", null] [ Text "-- select category --"]
+        let isActiveOptionSelected = Option.isSome activeOption
+        let optionBuilder = if isActiveOptionSelected then option else selectedOption
+        optionBuilder null [] [Text "-- filter category --"]
 
     let renderOptions allOptions activeOption =
-        let emptyOption = [ renderEmptyOption activeOption ]
+        let emptyOption = renderEmptyOption activeOption
         let options = allOptions |> List.map (renderOption activeOption)
-        emptyOption @ options
+        emptyOption::options
 
-    tag "form" ["method", "GET"] [
-        tag "input" ["type", "search"; "name", "name"; "value", (Option.defaultValue null search.Name)] []
-        tag "select" ["name", "category"] (renderOptions categories search.Category)
-        tag "button" ["type", "submit"] [ Text "Search" ]   
-        tag "button" ["type", "reset"; "value", "reset"] [ Text "reset"]
+    let searchValue = search.Name |> Option.defaultValue null
+    let categoryOptions = search.Category |> renderOptions categories
+
+    form "GET" ["class","form-inline ml-auto"] [
+        div ["class","input-group"] [
+            input "search" "name" ["class","form-control"; "value", searchValue; "id", "name"; "placeholder", "search..."] []
+            select "category" ["class","form-control"] categoryOptions
+            div ["class","input-group-append"] [
+                submitButton ["class","btn btn-primary"] [Text "Search"]   
+                resetButton ["class", "btn btn-secondary"] [Text "Reset"]
+            ]
+        ]    
     ]
 
 let view (search, categories, auctions) =
     [
-        tag "h1" [] [
-            Text "Auctions"
+        div ["class","d-flex"] [
+            h3 ["class","mr-auto"] [Text "Auctions"]
+            renderSearch search categories                
         ]
-        div [] [
-            renderSearch search categories
-        ]
-        tag "table" [] [
-            tag "thead" [] [
-                tag "tr" [] [
-                    tag "th" [] [ Text "Id" ]
-                    tag "th" [] [ Text "Name" ]
-                    tag "th" [] [ Text "Category" ]
-                    tag "th" [] [ Text "Description" ]
-                    tag "th" [] [ Text "End time" ]
-                    tag "th" [] [ ]
+        table ["class","table"] [
+            thead [] [
+                tr [] [
+                    th [] [Text "Id"]
+                    th [] [Text "Name"]
+                    th [] [Text "Category"]
+                    th [] [Text "Description"]
+                    th [] [Text "End time"]
+                    th [] []
                 ]
             ]
-            tag "tbody" [] (auctions |> List.map renderAuctionTableRow)
+            tbody [] (auctions |> List.map renderAuctionTableRow)
         ]
-    ] |> MasterView.view "auctions" |> htmlToString
+    ] |> masterView "Auctions" |> htmlToString
      
 let private loadSearch dict =
     let name = dict ^^ "name" |> Option.ofChoice

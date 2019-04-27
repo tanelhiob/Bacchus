@@ -29,7 +29,7 @@ let view (auction: AuctionsService.Provider.Auction, isPostBack) =
         p [] [
             tag "a" ["href", "/"] [ Text "back to index"]
         ]
-    ] |> MasterView.view (sprintf "auction %A" auction.ProductId) |> htmlToString
+    ] |> MasterView.masterView (sprintf "auction %A" auction.ProductId) |> htmlToString
 
 let private getAuctionAsyncOption id = async {
     match id with

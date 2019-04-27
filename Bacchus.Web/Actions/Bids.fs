@@ -21,7 +21,7 @@ let view bids =
             ]
             tag "tbody" [] (List.map renderBidsTableRow bids)
         ]
-    ] |> MasterView.view "bids" |> htmlToString
+    ] |> MasterView.masterView "bids" |> htmlToString
 
 let index _ = async {
     let! bids = Db.getBidsAsync ()
