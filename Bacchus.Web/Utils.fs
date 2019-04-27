@@ -2,10 +2,12 @@
 
 open System
 open System.Globalization
-open Suave
 open Suave.Successful
 open Suave.RequestErrors
-open System.IO
+
+let toEstonianTime (dateTimeOffset: DateTimeOffset) =
+    let estonianTimeZone = TimeZoneInfo.FindSystemTimeZoneById "FLE Standard Time"
+    TimeZoneInfo.ConvertTime (dateTimeOffset, estonianTimeZone)
 
 let textHasContent (text: string) =
     String.IsNullOrWhiteSpace text |> not

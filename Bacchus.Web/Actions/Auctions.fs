@@ -12,24 +12,24 @@ type Search = {
 
 let private renderAuctionTableRow (auction: AuctionsService.Provider.Auction) =
     tr [] [
-        td [] [Text (auction.ProductId |> string)]
+        td [] [
+            a (sprintf "/bid/%A" auction.ProductId) ["class","btn btn-success"] [Text "bid"]
+        ]
         td [] [Text auction.ProductName]
         td [] [Text auction.ProductCategory]
         td [] [Text auction.ProductDescription]
-        td [] [Text (auction.BiddingEndDate.ToLocalTime() |> string)]
-        td [] [a (sprintf "/bid/%A" auction.ProductId) [] [Text "bid"]]
+        td [] [Text ((auction.BiddingEndDate |> toEstonianTime).ToString("HH:mm:ss dd/MM"))]
     ]
    
 let private rendedAuctionsTable (auctions: AuctionsService.Provider.Auction list) =
     table ["class","table"] [
         thead [] [
             tr [] [
-                th [] [Text "Id"]
+                th [] []
                 th [] [Text "Name"]
                 th [] [Text "Category"]
                 th [] [Text "Description"]
                 th [] [Text "End time"]
-                th [] []
             ]
         ]
         tbody [] (auctions |> List.map renderAuctionTableRow)
