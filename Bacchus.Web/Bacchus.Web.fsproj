@@ -8,6 +8,9 @@
   <ItemGroup>
     <Compile Include="Infrastructure\Db.fs" />
     <Compile Include="Business\AuctionsService.fs" />
+    <None Include="public\jquery\jquery-3.4.0.slim.min.js">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="public\bootstrap\bootstrap.min.js">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

@@ -5,6 +5,10 @@ open System.Globalization
 open Suave.Successful
 open Suave.RequestErrors
 
+// all hail satans black magic
+let asyncToAsyncOption async =
+    async |> Async.bind (Some >> Async.result)
+
 let toEstonianTime (dateTimeOffset: DateTimeOffset) =
     let estonianTimeZone = TimeZoneInfo.FindSystemTimeZoneById "FLE Standard Time"
     TimeZoneInfo.ConvertTime (dateTimeOffset, estonianTimeZone)

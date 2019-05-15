@@ -1,0 +1,36 @@
+﻿@page "/products"
+@using Bacchus.Shared
+@inject HttpClient Http
+
+@foreach (var product in _products)
+{
+    <div>@product.ProductId @product.ProductName @product.ProductCategory</div>
+}
+
+@functions {
+
+    private IList<Product> _products = new List<Product>();
+    private IList<Product> _filteredProducts;
+    private IList<string> _categories;
+    private string _searchFilter;
+    private string _categoryFilter;
+
+    protected override async Task OnInitAsync()
+    {
+        _products = await Http.GetJsonAsync<List<Product>>("api/Products/GetProducts");
+        _categories = _products
+            .Select(x => x.ProductCategory)
+            .Distinct()
+            .ToList();
+
+        ApplyFilter();
+    }
+
+    private void ApplyFilter()
+    {
+        _filteredProducts = _products
+            .Where(x => _categoryFilter == null || x.ProductDescription == _categoryFilter)
+            .Where(x => String.IsNullOrEmpty(_searchFilter) || x.ProductName.ToLower().Contains(_searchFilter.Trim().ToLower()))
+            .ToList();
+    }
+}

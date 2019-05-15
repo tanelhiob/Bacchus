@@ -2,14 +2,12 @@
 
 open Suave.Html
 open MasterView
-open System
 
 let private renderBidsTableRow (bid: Db.Bid) =
-    let remainingTime = DateTimeOffset.UtcNow - bid.Created
     tr [] [
         td [] [Text (sprintf "%A" bid.ProductId)]
         td [] [Text (sprintf "%.2f" bid.Amount)]
-        td [] [Text (remainingTime.ToString(""))]
+        td [] [Text (bid.Created.ToString("HH:mm:ss dd/MM/yyyy"))]
     ]
 
 let view bids =

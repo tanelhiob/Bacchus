@@ -14,6 +14,10 @@ let nav = tag "nav"
 let ul = tag "ul"
 let li = tag "li"
 let h3 = tag "h3"
+let dl = tag "dl"
+let dt = tag "dt"
+let dd = tag "dd"
+let small = tag "small"
 let form method attributes = tag "form" (("method", method)::attributes)
 let label ``for`` attributes = tag "label" (("for", ``for``)::attributes)
 let input ``type`` name attributes = tag "input" (("type", ``type``)::("name", name)::attributes)
@@ -27,9 +31,10 @@ let masterView name content =
     html [] [
         head [] [
             title [] name
-            link [ "rel","stylesheet"; "type","text/css"; "href","/bootstrap/bootstrap.min.css" ]
-            script ["src", "/bootstrap/bootstrap.min.js"] []
-            link [ "rel","stylesheet"; "type","text/css"; "href","/master.css" ]
+            script ["src","/jquery/jquery-3.4.0.slim.min.js"] []
+            link ["rel","stylesheet"; "type","text/css"; "href","/bootstrap/bootstrap.min.css"]
+            script ["src","/bootstrap/bootstrap.min.js"] []
+            link ["rel","stylesheet"; "type","text/css"; "href","/master.css"]
         ]
         body [] [
             nav ["class","navbar"] [
