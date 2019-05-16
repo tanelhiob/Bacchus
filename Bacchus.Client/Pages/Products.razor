@@ -1,5 +1,6 @@
 ﻿@page "/"
 @using Bacchus.Shared
+@using System.Threading
 @inject HttpClient Http
 
 @if (_selectedProduct != null)
@@ -36,14 +37,17 @@
     <tbody>
         @foreach (var product in _filteredProducts)
 	    {
-		    <tr class="@(_selectedProduct == product ? "table-active" : "")">
+            // var productHasAged = (product.BiddingEndDate - DateTimeOffset.UtcNow).TotalMilliseconds < 0;
+            var productHasAged = false;     
+
+		    <tr class="@(_selectedProduct == product ? "table-active" : null)">
                 <td>
-                    <button class="btn btn-info" onclick="@(() => OpenBid(product))">Select</button>
+                    <button class="btn btn-info" onclick="@(() => OpenBid(product))" disabled="@(productHasAged ? "disabled" : null)">Select</button>
                 </td>
                 <td>@product.ProductName</td>
                 <td>@product.ProductCategory</td>
                 <td>@product.ProductDescription</td>
-                <td>@product.BiddingEndDate.ToLocalTime().ToString("HH:mm:ss dd/MM")</td>
+                <td>@(product.BiddingEndDate - DateTimeOffset.UtcNow)</td>
             </tr>
 	    }
     </tbody>
@@ -57,6 +61,7 @@
     private string _searchFilter;
     private string _categoryFilter;
     private Product _selectedProduct;
+    private Timer _timer;
 
     protected override async Task OnInitAsync()
     {
@@ -68,6 +73,11 @@
             .ToList();
 
         ApplyFilter();
+
+        _timer = new Timer(new TimerCallback(_ =>
+        {
+            this.StateHasChanged();
+        }), null, 1000, 1000);
     }
 
     private void SearchFilterChanged(UIChangeEventArgs args)
@@ -96,6 +106,6 @@
 
     private void OpenBid(Product product)
     {
-        _selectedProduct = product;   
+        _selectedProduct = product;
     }
 }
