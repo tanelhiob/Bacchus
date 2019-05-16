@@ -1,0 +1,72 @@
+[
+  {
+    "productId": "6d13b19a-2958-4df8-8007-952ace3b6142",
+    "productName": "ASUS ROG Maximus X Hero",
+    "productDescription": "Superior ASUS ROG Maximus X Hero",
+    "productCategory": "Computer hardware",
+    "biddingEndDate": "2019-05-16T08:24:49Z"
+  },
+  {
+    "productId": "e79ca4d5-b68c-4035-8261-98fb0cc8349b",
+    "productName": "Trunk for toys",
+    "productDescription": "Kickass Trunk for toys",
+    "productCategory": "Children",
+    "biddingEndDate": "2019-05-16T08:26:49Z"
+  },
+  {
+    "productId": "cf1aaa85-335c-45ba-a288-57b3b918d1f2",
+    "productName": "Hair dryer",
+    "productDescription": "Merchantable Hair dryer",
+    "productCategory": "Hygiene",
+    "biddingEndDate": "2019-05-16T08:28:49Z"
+  },
+  {
+    "productId": "2825a688-094b-4231-b825-2ced74e928b0",
+    "productName": "Potato masher",
+    "productDescription": "Used Potato masher",
+    "productCategory": "Cooking and kitchen",
+    "biddingEndDate": "2019-05-16T08:30:49Z"
+  },
+  {
+    "productId": "fb1e47a0-b044-4f03-a7c4-a350b9a14b1b",
+    "productName": "Long skirt",
+    "productDescription": "Merchantable Long skirt",
+    "productCategory": "Clothing",
+    "biddingEndDate": "2019-05-16T08:30:49Z"
+  },
+  {
+    "productId": "d8521905-e270-4f96-98d4-41db824cea00",
+    "productName": "Golf club",
+    "productDescription": "A pig in a poke Golf club",
+    "productCategory": "Sports",
+    "biddingEndDate": "2019-05-16T08:30:49Z"
+  },
+  {
+    "productId": "4c0a9071-bfd4-4c8e-81c2-76bf0aade1b8",
+    "productName": "Shampoo",
+    "productDescription": "Brand new Shampoo",
+    "productCategory": "Hygiene",
+    "biddingEndDate": "2019-05-16T08:30:49Z"
+  },
+  {
+    "productId": "8c11116a-382c-43ef-b0ea-c3ce6bb55dd2",
+    "productName": "Soap",
+    "productDescription": "Brand new Soap",
+    "productCategory": "Hygiene",
+    "biddingEndDate": "2019-05-16T08:31:49Z"
+  },
+  {
+    "productId": "e75e412b-a743-49b0-b756-2d2b52d457a3",
+    "productName": "Microwave oven",
+    "productDescription": "Brand new Microwave oven",
+    "productCategory": "Cooking and kitchen",
+    "biddingEndDate": "2019-05-16T08:32:49Z"
+  },
+  {
+    "productId": "f2c352af-2a48-4a85-847b-e56aeadb196e",
+    "productName": "Espresso machine",
+    "productDescription": "Merchantable Espresso machine",
+    "productCategory": "Cooking and kitchen",
+    "biddingEndDate": "2019-05-16T08:33:49Z"
+  }
+]

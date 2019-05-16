@@ -1,0 +1,70 @@
+﻿@using Bacchus.Shared
+@inject HttpClient Http
+
+<h3>Place bid</h3>
+ 
+<dl class="row">
+    <dt class="col-sm-3">Description</dt>
+    <dt class="col-sm-3">@Product.ProductDescription</dt>
+    <dt class="col-sm-3">Category</dt>
+    <dt class="col-sm-3">@Product.ProductCategory</dt>
+    <dt class="col-sm-3">Expiration</dt>
+    <dt class="col-sm-3">@(Product.BiddingEndDate - DateTimeOffset.UtcNow)</dt>
+</dl>
+
+<div class="form-group">
+    <label for="form-amount">Amount</label>
+    <input type="number" step="0.01" id="form-amount" value="0.00" bind="@_amount" />
+    <button class="btn btn-success" onclick="@PlaceBid" disabled="@(_placingBid ? "disabled" : null)">Place Bid</button>
+    @if (_placeBidResultText != null)
+    {
+        <small class="form-text @(_placeBidResult ? "text-success" : "text-danger")">@_placeBidResultText</small>
+    }
+</div>
+
+@functions
+{
+    private Product _product = null;
+    [Parameter]
+    public Product Product
+    {
+        get => _product;
+        set
+        {
+            _product = value;
+            _amount = 0;
+            _placeBidResultText = null;
+        }
+    }
+
+    private decimal _amount { get; set; }
+
+    private bool _placingBid = false;
+    private bool _placeBidResult = false;
+    private string _placeBidResultText = null;
+
+    private async Task PlaceBid()
+    {
+        var bid = new BidDto
+        {
+            ProductId = Product.ProductId,
+            Amount = _amount,
+        };
+
+        if (_amount <= 0)
+        {
+            _placeBidResult = false;
+            _placeBidResultText = "Amount must be larger than zero!";
+        }
+        else
+        {
+            _placingBid = true;
+            _placeBidResultText = null;
+            this.StateHasChanged();
+            await Http.PostJsonAsync("api/Products/PlaceBid", bid);
+            _placingBid = false;
+            _placeBidResult = true;
+            _placeBidResultText = "Bid placed successfully!";
+        }
+    }
+}

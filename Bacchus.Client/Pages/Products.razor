@@ -1,23 +1,65 @@
-﻿@page "/products"
+﻿@page "/"
 @using Bacchus.Shared
 @inject HttpClient Http
 
-@foreach (var product in _products)
+@if (_selectedProduct != null)
 {
-    <div>@product.ProductId @product.ProductName @product.ProductCategory</div>
+    <Bid Product="@_selectedProduct"></Bid>
 }
 
-@functions {
+<div class="d-flex">
+    <h3 class="mr-auto">Products</h3>
+    <div class="input-group">
+        <input type="search" class="form-control" onchange="@SearchFilterChanged" placeholder="search..." />
+        <select class="form-control" onchange="@CategoryFilterChanged">
+            <option value="">-- All categories --</option>
+            @foreach (var category in _categories)
+            {
+                <option value="@category">@category</option>
+            }
+        </select>
+    </div>
+</div>
 
+<table class="table">
+    <thead>
+        <tr>
+            <th></th>
+            <th>Name</th>
+            <th>Category</th>
+            <th>Description</th>
+            <th>End time</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var product in _filteredProducts)
+	    {
+		    <tr>
+                <td>
+                    <button class="btn btn-success" onclick="@(() => OpenBid(product))">Bid</button>
+                </td>
+                <td>@product.ProductName</td>
+                <td>@product.ProductCategory</td>
+                <td>@product.ProductDescription</td>
+                <td>@product.BiddingEndDate.ToLocalTime().ToString("HH:mm:ss dd/MM")</td>
+            </tr>
+	    }
+    </tbody>
+</table>
+
+@functions
+{
     private IList<Product> _products = new List<Product>();
-    private IList<Product> _filteredProducts;
-    private IList<string> _categories;
+    private IList<Product> _filteredProducts = new List<Product>();
+    private IList<string> _categories = new List<string>();
     private string _searchFilter;
     private string _categoryFilter;
+    private Product _selectedProduct;
 
     protected override async Task OnInitAsync()
     {
-        _products = await Http.GetJsonAsync<List<Product>>("api/Products/GetProducts");
+        // _products = await Http.GetJsonAsync<List<Product>>("api/Products/GetProducts");
+        _products = await Http.GetJsonAsync<List<Product>>("products.json");
         _categories = _products
             .Select(x => x.ProductCategory)
             .Distinct()
@@ -26,11 +68,32 @@
         ApplyFilter();
     }
 
+    private void SearchFilterChanged(UIChangeEventArgs args)
+    {
+        _searchFilter = (string)args.Value;
+        ApplyFilter();
+    }
+
+    private void CategoryFilterChanged(UIChangeEventArgs args)
+    {
+        _categoryFilter = (string)args.Value;
+        ApplyFilter();
+    }
+
     private void ApplyFilter()
     {
         _filteredProducts = _products
-            .Where(x => _categoryFilter == null || x.ProductDescription == _categoryFilter)
-            .Where(x => String.IsNullOrEmpty(_searchFilter) || x.ProductName.ToLower().Contains(_searchFilter.Trim().ToLower()))
+            .Where(x => String.IsNullOrEmpty(_categoryFilter)
+                || x.ProductCategory == _categoryFilter)
+            .Where(x => String.IsNullOrEmpty(_searchFilter)
+                || x.ProductName.ToLower().Contains(_searchFilter.Trim().ToLower())
+                || x.ProductDescription.ToLower().Contains(_searchFilter.Trim().ToLower())
+                || x.ProductCategory.ToLower().Contains(_searchFilter.Trim().ToLower()))
             .ToList();
+    }
+
+    private void OpenBid(Product product)
+    {
+        _selectedProduct = product;   
     }
 }

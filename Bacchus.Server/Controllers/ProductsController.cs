@@ -1,8 +1,10 @@
 ﻿using Bacchus.Server.Data;
 using Bacchus.Shared;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 
@@ -43,6 +45,16 @@ namespace Bacchus.Server.Controllers
 
             _dbContext.Add(bid);
             await _dbContext.SaveChangesAsync();
+        }
+
+        [HttpGet("[action]")]
+        public async Task<ActionResult<IList<BidDto>>> GetBids()
+        {
+            var bids = await _dbContext.Bids.ToListAsync();
+
+            return bids
+                .Select(bid => new BidDto { ProductId = bid.ProductId, Amount = bid.Amount, Created = bid.Created })
+                .ToList();
         }
     }
 }
