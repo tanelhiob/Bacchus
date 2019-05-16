@@ -5,11 +5,11 @@
  
 <dl class="row">
     <dt class="col-sm-3">Description</dt>
-    <dt class="col-sm-3">@Product.ProductDescription</dt>
+    <dt class="col-sm-9">@Product.ProductDescription</dt>
     <dt class="col-sm-3">Category</dt>
-    <dt class="col-sm-3">@Product.ProductCategory</dt>
+    <dt class="col-sm-9">@Product.ProductCategory</dt>
     <dt class="col-sm-3">Expiration</dt>
-    <dt class="col-sm-3">@(Product.BiddingEndDate - DateTimeOffset.UtcNow)</dt>
+    <dt class="col-sm-9">@(Product.BiddingEndDate - DateTimeOffset.UtcNow)</dt>
 </dl>
 
 <div class="form-group">
