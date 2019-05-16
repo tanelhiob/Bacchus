@@ -9,16 +9,18 @@
 
 <div class="d-flex">
     <h3 class="mr-auto">Products</h3>
-    <div class="input-group">
-        <input type="search" class="form-control" onchange="@SearchFilterChanged" placeholder="search..." />
-        <select class="form-control" onchange="@CategoryFilterChanged">
-            <option value="">-- All categories --</option>
-            @foreach (var category in _categories)
-            {
-                <option value="@category">@category</option>
-            }
-        </select>
-    </div>
+    <form class="form-inline ml-auto">
+        <div class="input-group">
+            <input type="search" class="form-control" onchange="@SearchFilterChanged" placeholder="search..." />
+            <select class="form-control" onchange="@CategoryFilterChanged">
+                <option value="">-- All categories --</option>
+                @foreach (var category in _categories)
+                {
+                    <option value="@category">@category</option>
+                }
+            </select>
+        </div>
+    </form>
 </div>
 
 <table class="table">
@@ -34,9 +36,9 @@
     <tbody>
         @foreach (var product in _filteredProducts)
 	    {
-		    <tr>
+		    <tr class="@(_selectedProduct == product ? "table-active" : "")">
                 <td>
-                    <button class="btn btn-success" onclick="@(() => OpenBid(product))">Bid</button>
+                    <button class="btn btn-info" onclick="@(() => OpenBid(product))">Select</button>
                 </td>
                 <td>@product.ProductName</td>
                 <td>@product.ProductCategory</td>
