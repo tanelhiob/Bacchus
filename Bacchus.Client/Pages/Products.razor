@@ -1,6 +1,5 @@
 ﻿@page "/"
 @using Bacchus.Shared
-@using System.Threading
 @inject HttpClient Http
 
 @if (_selectedProduct != null)
@@ -37,8 +36,7 @@
     <tbody>
         @foreach (var product in _filteredProducts)
 	    {
-            // var productHasAged = (product.BiddingEndDate - DateTimeOffset.UtcNow).TotalMilliseconds < 0;
-            var productHasAged = false;     
+            var productHasAged = (product.BiddingEndDate - DateTimeOffset.UtcNow).TotalMilliseconds < 0;   
 
 		    <tr class="@(_selectedProduct == product ? "table-active" : null)">
                 <td>
@@ -61,23 +59,17 @@
     private string _searchFilter;
     private string _categoryFilter;
     private Product _selectedProduct;
-    private Timer _timer;
 
     protected override async Task OnInitAsync()
     {
-        // _products = await Http.GetJsonAsync<List<Product>>("api/Products/GetProducts");
-        _products = await Http.GetJsonAsync<List<Product>>("products.json");
+        _products = await Http.GetJsonAsync<List<Product>>("api/Products/GetProducts");
+        // _products = await Http.GetJsonAsync<List<Product>>("products.json");
         _categories = _products
             .Select(x => x.ProductCategory)
             .Distinct()
             .ToList();
 
         ApplyFilter();
-
-        _timer = new Timer(new TimerCallback(_ =>
-        {
-            this.StateHasChanged();
-        }), null, 1000, 1000);
     }
 
     private void SearchFilterChanged(UIChangeEventArgs args)
