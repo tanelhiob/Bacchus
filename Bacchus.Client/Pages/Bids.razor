@@ -7,6 +7,7 @@
     <thead>
         <tr>
             <th>ProductId</th>
+            <th>Username</th>
             <th>Amount</th>
             <th>Created</th>
         </tr>
@@ -16,6 +17,7 @@
         {
             <tr>
                 <td>@bid.ProductId</td>
+                <td>@bid.Username</td>
                 <td>@bid.Amount.ToString("0.00")</td>
                 <td>@bid.Created.ToLocalTime().ToString("HH:mm:ss dd/MM/yyyy")</td>
             </tr>

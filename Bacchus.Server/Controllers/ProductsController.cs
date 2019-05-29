@@ -40,6 +40,7 @@ namespace Bacchus.Server.Controllers
                 Id = Guid.NewGuid(),
                 Created = DateTimeOffset.UtcNow,
                 Amount = bidDto.Amount,
+                Username = bidDto.Username,
                 ProductId = bidDto.ProductId,
             };
 
@@ -53,7 +54,7 @@ namespace Bacchus.Server.Controllers
             var bids = await _dbContext.Bids.ToListAsync();
 
             return bids
-                .Select(bid => new BidDto { ProductId = bid.ProductId, Amount = bid.Amount, Created = bid.Created })
+                .Select(bid => new BidDto { ProductId = bid.ProductId, Amount = bid.Amount, Created = bid.Created, Username = bid.Username })
                 .ToList();
         }
     }

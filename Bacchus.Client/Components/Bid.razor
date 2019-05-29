@@ -12,9 +12,15 @@
     <dt class="col-sm-9">@(Product.BiddingEndDate - DateTimeOffset.UtcNow)</dt>
 </dl>
 
-<div class="form-group">
-    <label for="form-amount">Amount</label>
-    <input type="number" step="0.01" id="form-amount" value="0.00" bind="@_amount" />
+<div>
+    <div class="form-group">
+        <label for="form-amount">Amount</label>
+        <input type="number" step="0.01" id="form-amount" value="0.00" bind="@_amount" />
+    </div>
+    <div class="form-group">
+        <label for="form-name">Username</label>
+        <input type="text" id="form-name" bind="@_username" />
+    </div>
     <button class="btn btn-success" onclick="@PlaceBid" disabled="@(_placingBid ? "disabled" : null)">Place Bid</button>
     @if (_placeBidResultText != null)
     {
@@ -38,6 +44,7 @@
     }
 
     private decimal _amount { get; set; }
+    private string _username { get; set; }
 
     private bool _placingBid = false;
     private bool _placeBidResult = false;
@@ -45,22 +52,34 @@
 
     private async Task PlaceBid()
     {
-        var bid = new BidDto
-        {
-            ProductId = Product.ProductId,
-            Amount = _amount,
-        };
-
         if (_amount <= 0)
         {
             _placeBidResult = false;
             _placeBidResultText = "Amount must be larger than zero!";
+        }
+        else if (string.IsNullOrEmpty(_username))
+        {
+            _placeBidResult = false;
+            _placeBidResultText = "Username must be set";
+        }
+        else if (Product.BiddingEndDate <= DateTimeOffset.UtcNow)
+        {
+            _placeBidResult = false;
+            _placeBidResultText = "Auction has ended";
         }
         else
         {
             _placingBid = true;
             _placeBidResultText = null;
             this.StateHasChanged();
+
+            var bid = new BidDto
+            {
+                ProductId = Product.ProductId,
+                Amount = _amount,
+                Username = _username,
+            };
+
             await Http.PostJsonAsync("api/Products/PlaceBid", bid);
             _placingBid = false;
             _placeBidResult = true;
