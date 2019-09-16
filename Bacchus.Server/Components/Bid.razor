@@ -1,5 +1,4 @@
-﻿@using Bacchus.Shared
-@inject HttpClient Http
+﻿@inject BacchusDbContext _db
 
 <h3>Place bid</h3>
  
@@ -15,13 +14,13 @@
 <div>
     <div class="form-group">
         <label for="form-amount">Amount</label>
-        <input type="number" step="0.01" id="form-amount" value="0.00" bind="@_amount" />
+        <input type="number" step="0.01" id="form-amount" @bind="_amount" />
     </div>
     <div class="form-group">
         <label for="form-name">Username</label>
-        <input type="text" id="form-name" bind="@_username" />
+        <input type="text" id="form-name" @bind="_username" />
     </div>
-    <button class="btn btn-success" onclick="@PlaceBid" disabled="@(_placingBid ? "disabled" : null)">Place Bid</button>
+    <button class="btn btn-success" @onclick="PlaceBid" disabled="@(_placingBid ? "disabled" : null)">Place Bid</button>
     @if (_placeBidResultText != null)
     {
         <small class="form-text @(_placeBidResult ? "text-success" : "text-danger")">@_placeBidResultText</small>
@@ -30,7 +29,8 @@
 
 @functions
 {
-    private Product _product = null;
+    private Product _product;
+
     [Parameter]
     public Product Product
     {
@@ -73,14 +73,16 @@
             _placeBidResultText = null;
             this.StateHasChanged();
 
-            var bid = new BidDto
+            var bid = new Data.Bid
             {
                 ProductId = Product.ProductId,
                 Amount = _amount,
                 Username = _username,
             };
+            _db.Bids.Add(bid);
+            
+            await _db.SaveChangesAsync();
 
-            await Http.PostJsonAsync("api/Products/PlaceBid", bid);
             _placingBid = false;
             _placeBidResult = true;
             _placeBidResultText = "Bid placed successfully!";

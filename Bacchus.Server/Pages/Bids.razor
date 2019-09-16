@@ -1,6 +1,5 @@
 ﻿@page "/bids"
-@using Bacchus.Shared
-@inject HttpClient Http
+@inject BacchusDbContext _db
 
 <h3>Bids</h3>
 <table class="table">
@@ -13,24 +12,24 @@
         </tr>
     </thead>
     <tbody>
-        @foreach (var bid in _bids)
+        @foreach (var bid in _bids ?? new List<Bid>())
         {
             <tr>
                 <td>@bid.ProductId</td>
                 <td>@bid.Username</td>
                 <td>@bid.Amount.ToString("0.00")</td>
-                <td>@bid.Created.ToLocalTime().ToString("HH:mm:ss dd/MM/yyyy")</td>
+                <td>@bid.Created.ToLocalTime().ToString("o")</td>
             </tr>
         }
     </tbody>
 </table>
 
-@functions
+@code
 {
-    private IList<BidDto> _bids = new List<BidDto>();
+    private IList<Data.Bid> _bids;
 
-    protected override async Task OnInitAsync()
+    protected override async Task OnInitializedAsync()
     {
-        _bids = await Http.GetJsonAsync<List<BidDto>>("api/Products/GetBids");
+        _bids = await _db.Bids.ToListAsync();
     }
 }

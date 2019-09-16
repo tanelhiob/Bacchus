@@ -1,20 +1,20 @@
 ﻿@page "/"
-@using Bacchus.Shared
-@inject HttpClient Http
+@inject BacchusDbContext _db
+@inject ProductService _productService
 
 @if (_selectedProduct != null)
 {
-    <Bid Product="@_selectedProduct"></Bid>
+    <Bacchus.Server.Components.Bid Product="@_selectedProduct"/>
 }
 
 <div class="d-flex">
     <h3 class="mr-auto">Products</h3>
     <div class="form-inline ml-auto">
         <div class="input-group">
-            <input type="search" class="form-control" onchange="@SearchFilterChanged" placeholder="search..." />
-            <select class="form-control" onchange="@CategoryFilterChanged">
+            <input type="search" class="form-control" @onchange="SearchFilterChanged" placeholder="search..." />
+            <select class="form-control" @onchange="CategoryFilterChanged">
                 <option value="">-- All categories --</option>
-                @foreach (var category in _categories)
+                @foreach (var category in _categories ?? new List<string>())
                 {
                     <option value="@category">@category</option>
                 }
@@ -34,13 +34,13 @@
         </tr>
     </thead>
     <tbody>
-        @foreach (var product in _filteredProducts)
+        @foreach (var product in _filteredProducts ?? new List<Product>())
 	    {
             var productHasAged = (product.BiddingEndDate - DateTimeOffset.UtcNow).TotalMilliseconds < 0;   
 
 		    <tr class="@(_selectedProduct == product ? "table-active" : null)">
                 <td>
-                    <button class="btn btn-info" onclick="@(() => OpenBid(product))" disabled="@(productHasAged ? "disabled" : null)">Select</button>
+                    <button class="btn btn-info" @onclick="(() => OpenBid(product))" disabled="@(productHasAged ? "disabled" : null)">Select</button>
                 </td>
                 <td>@product.ProductName</td>
                 <td>@product.ProductCategory</td>
@@ -51,19 +51,19 @@
     </tbody>
 </table>
 
-@functions
+@code
 {
-    private IList<Product> _products = new List<Product>();
-    private IList<Product> _filteredProducts = new List<Product>();
-    private IList<string> _categories = new List<string>();
+    private IList<Product> _products;
+    private IList<Product> _filteredProducts;
+    private IList<string> _categories;
     private string _searchFilter;
     private string _categoryFilter;
     private Product _selectedProduct;
 
-    protected override async Task OnInitAsync()
+    protected override async Task OnInitializedAsync()
     {
-        _products = await Http.GetJsonAsync<List<Product>>("api/Products/GetProducts");
-        // _products = await Http.GetJsonAsync<List<Product>>("products.json");
+        _products = await _productService.FetchProductsAsync();
+
         _categories = _products
             .Select(x => x.ProductCategory)
             .Distinct()
@@ -72,13 +72,13 @@
         ApplyFilter();
     }
 
-    private void SearchFilterChanged(UIChangeEventArgs args)
+    private void SearchFilterChanged(ChangeEventArgs args)
     {
         _searchFilter = (string)args.Value;
         ApplyFilter();
     }
 
-    private void CategoryFilterChanged(UIChangeEventArgs args)
+    private void CategoryFilterChanged(ChangeEventArgs args)
     {
         _categoryFilter = (string)args.Value;
         ApplyFilter();

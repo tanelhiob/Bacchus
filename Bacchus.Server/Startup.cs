@@ -1,11 +1,10 @@
 using Bacchus.Server.Data;
+using Bacchus.Server.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using System.Linq;
 
 namespace Bacchus.Server
 {
@@ -13,34 +12,30 @@ namespace Bacchus.Server
     {
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddHttpClient();
+            services.AddHttpClient<ProductService>();
             services.AddDbContext<BacchusDbContext>(o => o.UseInMemoryDatabase(nameof(Bacchus)));
-            services.AddMvc().AddNewtonsoftJson();
-            services.AddResponseCompression(opts =>
-            {
-                opts.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(
-                    new[] { "application/octet-stream" });
-            });
+
+            services.AddRazorPages();
+            services
+                .AddServerSideBlazor()
+                .AddCircuitOptions(o => o.DetailedErrors = true);
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            app.UseResponseCompression();
-
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
-                app.UseBlazorDebugging();
             }
 
+            app.UseStaticFiles();
             app.UseRouting();
 
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapDefaultControllerRoute();
+                endpoints.MapBlazorHub();
+                endpoints.MapFallbackToPage("/_Host");
             });
-
-            app.UseBlazor<Client.Startup>();
         }
     }
 }
