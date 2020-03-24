@@ -1,0 +1,16 @@
+apiVersion : apps/v1beta1
+kind: Deployment
+metadata:
+  name: "kbr"
+spec:
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: "kbr"
+    spec:
+      containers:
+        - name: "kbr"
+          image: "bacchusserver.azurecr.io/kbr"
+          ports:
+          - containerPort: 80
